@@ -9,7 +9,7 @@ import store from './store'
 
 var VueFire = require('vuefire')
 var Firebase = require('firebase')
-
+import {TweenMax, TweenLite, Power2, TimelineLite} from "gsap"
 // explicit installation required in module environments
 Vue.use(VueFire)
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))

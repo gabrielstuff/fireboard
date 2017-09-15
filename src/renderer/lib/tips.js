@@ -11,7 +11,7 @@
 'use strict';
 import anime from 'animejs'
 const charming = require('charming')
-
+	var colorAfter = '#1d4c9a'
 	const config = {
 		cora: {
 			in: {
@@ -41,7 +41,7 @@ const charming = require('charming')
 					duration: 300,
 					easing: 'easeOutExpo',
 					scale: [1,0.9],
-					color: '#6fbb95'
+					color: colorAfter
 				}
 			},
 			out: {
@@ -108,7 +108,7 @@ const charming = require('charming')
 						{value: 1, duration: 130, easing: 'easeOutQuad'}
 					],
 					color: [
-						{value: '#6fbb95', duration: 1, delay: 130, easing: 'easeOutQuad'}
+						{value: colorAfter, duration: 1, delay: 130, easing: 'easeOutQuad'}
 					]
 				}
 			},
@@ -180,7 +180,7 @@ const charming = require('charming')
 						{value: 1, duration: 100, easing: 'easeOutQuad'}
 					],
 					color: {
-						value: '#6fbb95', 
+						value: colorAfter, 
 						duration: 1, 
 						delay: 100, 
 						easing: 'easeOutQuad'
@@ -272,7 +272,7 @@ const charming = require('charming')
 						{value: 1, duration: 100, easing: 'easeOutQuad'}
 					],
 					color: {
-						value: '#6fbb95', 
+						value: colorAfter, 
 						duration: 1, 
 						delay: 100, 
 						easing: 'easeOutQuad'
@@ -356,7 +356,7 @@ const charming = require('charming')
 						{value: 1, duration: 100, easing: 'easeOutQuad'}
 					],
 					color: [
-						{value: '#6fbb95', duration: 1, delay: 100, easing: 'easeOutQuad'}
+						{value: colorAfter, duration: 1, delay: 100, easing: 'easeOutQuad'}
 					]
 				}
 			},
@@ -426,7 +426,7 @@ const charming = require('charming')
 					duration: 300,
 					easing: 'easeOutQuint',
 					scale: [1,0.9],
-					color: '#6fbb95'
+					color: colorAfter
 				}
 			},
 			out: {
@@ -502,7 +502,7 @@ const charming = require('charming')
 						{value: 1, duration: 250, easing: 'easeOutQuint'}
 					],
 					color: [
-						{value: '#6fbb95', duration: 1, delay: 100, easing: 'easeOutQuint'}
+						{value: colorAfter, duration: 1, delay: 100, easing: 'easeOutQuint'}
 					]
 				}
 			},
@@ -605,7 +605,7 @@ const charming = require('charming')
 						{value: 1, duration: 100, easing: 'easeOutQuad'}
 					],
 					color: {
-						value: '#6fbb95', 
+						value: colorAfter, 
 						duration: 1, 
 						delay: 100, 
 						easing: 'easeOutQuad'
@@ -700,7 +700,7 @@ const charming = require('charming')
 						{value: 1, duration: 100, easing: 'easeOutQuad'}
 					],
 					color: {
-						value: '#6fbb95', 
+						value: colorAfter, 
 						duration: 1, 
 						delay: 100, 
 						easing: 'easeOutQuad'
@@ -793,7 +793,7 @@ const charming = require('charming')
 						{value: 1, duration: 200, easing: 'easeOutExpo'}
 					],
 					color: [
-						{value: '#6fbb95', duration: 1, delay: 200, easing: 'easeOutExpo'}
+						{value: colorAfter, duration: 1, delay: 200, easing: 'easeOutExpo'}
 					]
 				}
 			},
@@ -882,7 +882,7 @@ const charming = require('charming')
 					duration: 300,
 					easing: 'easeOutExpo',
 					scale: [1,0.9],
-					color: '#6fbb95'
+					color: colorAfter
 				}
 			},
 			out: {
@@ -959,7 +959,7 @@ const charming = require('charming')
 						{value: 1, duration: 100, easing: 'easeOutQuad'}
 					],
 					color: {
-						value: '#6fbb95', 
+						value: colorAfter, 
 						duration: 1,
 						delay: 100, 
 						easing: 'easeOutQuad'

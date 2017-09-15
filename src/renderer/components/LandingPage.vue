@@ -4,10 +4,15 @@
     <h1>{{settings.content.messages.header}}</h1>
     <main>
       <div class="content">
-        <div class="grid">
-          <div v-for="(item, index) in reverseMessages" track-by="uid" class="grid__item">
-              <div :id="item.uid" :class="'tooltip tooltip--'+getToolTipName(index)" :data-type="getToolTipName(index)">
-                <div class="tooltip__trigger">
+        <div v-show="showGrid" class="grid">
+          <div v-for="(item, index) in reverseMessages" track-by="uid"  
+               :id="'msg-'+item.uid"
+               class="grid__item">
+              <div :id="item.uid"
+               :class="'tooltip tooltip--'+getToolTipName(item.body)"
+               :data-type="getToolTipName(item.body)"
+               :style="">
+                <div class="tooltip__trigger" :class="{active: item.isActive}">
                   <span class="phone">📱</span>
                   <span class="tooltip__trigger-text">{{item.author}}</span>
                   <span class="leaf-separator">
@@ -18,11 +23,25 @@
                   </span>
                 </div>
                 <div class="tooltip__base">
-                  <component :is="getToolTipName(index)"></component>
+                  <component :is="getToolTipName(item.body)"></component>
                   <div class="tooltip__content" v-html="emojify(item.body)"></div>
                 </div>
               </div>
             </div>
+        </div>
+      </div>
+      <div class="mail">
+        <div class="mail-wrapper top-left" :title="mail[mail.length-1].author.name">
+          <img :src="mail[mail.length-1].image.url" alt="" >
+        </div>
+        <div class="mail-wrapper top-right" :title="mail[mail.length-2].author.name">
+          <img :src="mail[mail.length-2].image.url" alt="" >
+        </div>
+        <div class="mail-wrapper bottom-left" :title="mail[mail.length-3].author.name">
+          <img :src="mail[mail.length-3].image.url" alt="" >
+        </div>
+        <div class="mail-wrapper bottom-right" :title="mail[mail.length-4].author.name">
+          <img :src="mail[mail.length-4].image.url" alt="" >
         </div>
       </div>
     </main>
@@ -35,7 +54,9 @@
 <script>
   import settings from '@/lib/settings'
   import Tooltip from '../lib/tips.js'
-  let tipOptions = ['cora','smaug','dori','amras','hador','sadoc']
+  var Chance = require('chance')
+  var chance = new Chance()
+  let tipOptions = ['cora','smaug']
   var Firebase = require('firebase')
   const emojione = require('emojione')
   var firebaseApp = Firebase.initializeApp({
@@ -45,6 +66,7 @@
   function map_range(value, low1, high1, low2, high2) {
       return Math.floor(low2 + (high2 - low2) * (value - low1) / (high1 - low1));
   }
+
   export default {
     name: 'landing-page',
     firebase: {
@@ -54,58 +76,123 @@
           let vm = this
           console.log('data loaded')
           this.$nextTick(function () {
-            const tooltips = Array.from(document.querySelectorAll('.tooltip'));
-            const init = (() => tooltips.forEach(t =>
-              vm.tips[t.id] = new Tooltip(t)
-            ))()
-            console.log(vm.tips)
+            vm.initTips()
             vm.rotateDisplay()
           })
           
+        }
+      },
+      mail: {
+        source: db.ref('mail'),
+        readyCallback: function () {
+          let vm = this
+          console.log('mail loaded')
+          this.$nextTick(function () {
+          })
         }
       }
     },
     data() {
       return {
         settings,
+        showGrid: false,
         newMessages: [],
         messages: [],
-        tips: {} 
+        mail:[],
+        tips: {},
+        clear: false,
+        newMessageReceived: true,
+        rotateTimeout:null
       }
     },
     watch: {
       messages() {
         let vm = this
-            console.log( 'Change detected...' )
-            setTimeout(()=>{
-              
-            },1000)
-             
-        }
+        console.log( 'Change detected...' )
+        setTimeout(()=>{
+          vm.resetGrid(true)
+        }, 1000)
+      }
     },
     components: {  },
     computed: {
        reverseMessages() {
-         return this.messages.slice(this.messages.length - 9).reverse()
+         if(this.clear){
+           return []
+         } else if(this.newMessageReceived){
+           return this.messages.slice(this.messages.length - 9).reverse()
+         } else {
+           return chance.pickset(this.messages, 9)
+         }
+       },
+       randomMessage(){
+         return chance.pickset(this.messages, 9)
        }
     },
     mounted(){
-     
+     /*
+      a Pen by DIACO : twitter.com/Diaco_ml  ||  codepen.io/MAW
+      powered by GSAP : https://www.greensock.com/
+      */
+      
     },
     methods: {
-      rotateDisplay(){
-        var obj_keys = Object.keys(this.tips);
-        var ran_key = obj_keys[Math.floor(Math.random() * obj_keys.length)];
-        this.tips[ran_key].show()
-        setTimeout(()=>{
-          //this.tips[ran_key].hide()
-          this.rotateDisplay()
-        }, 2000)
+      getRandPos(){
+         return chance.pickone(['10', '-20', '-5', '30', '-20'])
       },
-      getToolTipName(index){
-        console.log(index)
-        console.log(map_range(index, 0, this.messages.length-1, 0, tipOptions.length-1))
-        return tipOptions[map_range(index, 0, this.messages.length-1, 0, tipOptions.length-1)]
+      initTips(){
+        let vm = this
+        const tooltips = Array.from(document.querySelectorAll('.tooltip'))
+        TweenMax.set(tooltips, {opacity:1, y:0})
+        const init = (() => tooltips.forEach(t =>{
+          vm.tips[t.id] = new Tooltip(t)
+          vm.tips[t.id].hide()
+          TweenMax.set(vm.tips[t.id].DOM.trigger, {opacity:0})
+        }))()
+        setTimeout(()=>{this.showGrid = true}, 500)
+        console.log(vm.tips)
+      },
+      rotateDisplay(){
+        let vm = this
+        var obj_keys = Object.keys(this.tips)
+        if (obj_keys.length > 0) {
+          var ran_key = obj_keys[Math.floor(Math.random() * obj_keys.length)]
+          TweenLite.to(this.tips[ran_key].DOM.trigger, 1, {opacity:1, ease:Power2.easeInOut, onComplete: ()=>{
+            this.tips[ran_key].show()
+            this.rotateTimeout = setTimeout(()=>{
+              //this.tips[ran_key].hide()
+              delete(this.tips[ran_key])
+              this.rotateDisplay()
+            }, chance.pickone(['1000', '1500', '500', '2500', '900']))
+          }})
+        } else {
+          this.resetGrid(false)
+        }
+      },
+      resetGrid(newMessage){
+        let vm = this
+        clearTimeout(this.rotateTimeout)
+        const tooltips = Array.from(document.querySelectorAll('.tooltip'))
+        TweenMax.staggerTo(tooltips, 0.5, {opacity:0, y:-100, ease:Back.easeIn}, 0.1,  ()=>{
+          this.clear = true
+          this.showGrid = false
+          this.newMessageReceived = newMessage
+          this.clear = false
+          this.$nextTick(function () {
+            vm.initTips()
+            vm.rotateDisplay()
+          })
+        })
+      },
+      getToolTipName(content){
+        //console.log(index)
+        //console.log(map_range(index, 0, this.messages.length-1, 0, tipOptions.length-1))
+        if(content.length > 100){
+          return 'cora'
+        } else {
+          return 'smaug'
+        }
+        //return tipOptions[map_range(index, 0, this.messages.length-1, 0, tipOptions.length-1)]
       },
       emojify(stringInput){
         return emojione.unicodeToImage(stringInput)
@@ -141,6 +228,8 @@
   @import '../style/css/normalize';
   @import '../style/css/demo';
   @import '../style/css/component';
+  @import '../../../node_modules/animate.css/animate.min.css';
+
   @import url('https://fonts.googleapis.com/css?family=Amatic+SC:400,700|Sedgwick+Ave|VT323&subset=latin-ext');
   
   * {
@@ -150,13 +239,86 @@
   }
 
   body { font-family: 'Source Sans Pro', sans-serif; }
-
+  .dot{
+    width:35px;
+    height:35px;
+    position:absolute;
+    background: url(http://www.clipartqueen.com/image-files/red-lobed-fall-clipart-leaf.png);
+    background-size: 100% 100%;
+  }
   h1{
       font-family: 'Amatic SC', cursive;
       text-align: center;
       font-weight: 700;
       font-size: 52px;
-      color: rgba(29, 76, 154, 1)
+      color: rgba(29, 76, 154, 1);
+      z-index:10;
+      position: relative;
+  }
+  .mail{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index:0;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .mail-wrapper{
+    background: #fff;
+    display: inline;
+    float: left;
+    margin: 0 0 27px 30px;
+    width: 30%;
+    padding: 10px 10px 15px;
+    text-align: center;
+    font-family: "Marker Felt", sans-serif;
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    -webkit-box-shadow: 0 3px 6px rgba(0,0,0,.25);
+    -moz-box-shadow: 0 3px 6px rgba(0,0,0,.25);
+    -webkit-transform: rotate(-2deg);
+    -webkit-transition: -webkit-transform .15s linear;
+    -moz-transform: rotate(-2deg);
+    overflow: hidden;
+  }
+  .mail-wrapper.top-left{
+    left: -17px;
+    position: absolute;
+    transform: rotate(-2deg);
+    top: -8px;
+    width: 20%;
+  }
+  .mail-wrapper.top-right{
+    right: -17px;
+    position: absolute;
+    transform: rotate(8deg);
+    top: 10px;
+    width: 20%;
+  }
+  .mail-wrapper.bottom-right{
+    right: -17px;
+    position: absolute;
+    transform: rotate(4deg);
+    bottom: -5px;
+    width: 15%;
+  }
+  .mail-wrapper.bottom-left{
+    left: -37px;
+    position: absolute;
+    transform: rotate(-18deg);
+    bottom: -10px;
+    width: 25%;
+  }
+  
+  .mail-wrapper:after {
+    content: attr(title);
+  }
+  .mail-wrapper img{
+    border: 0;
+    object-fit: contain;
+    width: 100%;
   }
 
   #wrapper {
@@ -181,6 +343,7 @@
 
   main .content {
     width: 100vw;
+    z-index:3;
   }
 
   .welcome {

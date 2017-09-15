@@ -1,9 +1,9 @@
 {
   "customSetting" : "defaultCustomSetting",
   "window" : {
-    "width": 1920,
-    "height": 1080,
-    "kiosk": true,
+    "width": 800,
+    "height": 600,
+    "kiosk": false,
     "autoHideMenuBar": true,
     "webPreferences": {
       "plugins": true,
